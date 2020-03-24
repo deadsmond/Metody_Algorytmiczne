@@ -6,7 +6,7 @@ def sign(x: int) -> str:
     return '+' if (lambda a: (x > 0) - (x < 0)) else '-'
 
 
-def validate(list_: list) -> bool:
+def validate_list(list_: list) -> bool:
     """ validate if list contains only integers """
     return all(isinstance(x, int) for x in list_)
 
@@ -18,6 +18,14 @@ def print_equation(list_: list) -> str:
         power = len(list_) - list_.index(i) - 1
         equation += "%s %sx^%s " % (sign(i), i, power)
     return equation[1:-4].lstrip()
+
+
+def verify_solution(a: list, x: int) -> bool:
+    result = 0
+    a.reverse()
+    for i in range(len(a)-1, -1, -1):
+        result += a[i] * pow(x, i)
+    return result == 0
 
 
 class EquationSolver:
@@ -32,7 +40,7 @@ class EquationSolver:
 
     def set_equation(self, a: list):
         """ set equation of solver object """
-        if validate(a):
+        if validate_list(a):
             self.coefficients = a
         else:
             raise ValueError("wrong value fo coefficient")
@@ -40,7 +48,7 @@ class EquationSolver:
     def divide_binomial(self, b: list, a: list = None, print_: bool = False) -> tuple:
         """ divide polynomial by binomial with Horner schema """
         # validate equations
-        validate(b)
+        validate_list(b)
         if a is not None:
             self.set_equation(a)
 
@@ -88,3 +96,5 @@ if __name__ == "__main__":
 
     # divide by binomial
     solver.divide_binomial(b=[1, 7], print_=True)
+
+    print(verify_solution([2, 4, -16], 2))
