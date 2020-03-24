@@ -32,17 +32,17 @@ class Cashbox:
         return list(self.cash_register.keys()), list(self.cash_register.values())
 
     @staticmethod
-    def remove_duplicates_from_list(L: list) -> list:
+    def remove_duplicates_from_list(list_: list) -> list:
         a = []
-        for item in L:
+        for item in list_:
             item = sorted(item)
             if item not in a:
                 a.append(item)
         return a
 
-    def is_possible(self, L: list):
+    def is_possible(self, list_: list):
         temporary_registry = dict(self.cash_register)
-        for coin in L:
+        for coin in list_:
             if temporary_registry[str(coin)] > 0:
                 temporary_registry[str(coin)] -= 1
             else:
