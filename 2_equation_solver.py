@@ -1,4 +1,5 @@
 # equation solving class and its support functions
+from Fraction import Fraction
 
 
 def sign(x: int) -> str:
@@ -21,11 +22,55 @@ def print_equation(list_: list) -> str:
 
 
 def verify_solution(a: list, x: int) -> bool:
+    """ verifies if 'x' is a solution of equation 'a'"""
     result = 0
     a.reverse()
     for i in range(len(a)-1, -1, -1):
         result += a[i] * pow(x, i)
     return result == 0
+
+
+def find_factors(x: int) -> list:
+    """ find positive factors of x """
+    factors = []
+    for i in range(1, abs(x) + 1):
+        if not x % i:
+            factors.append(i)
+    return factors
+
+
+def possible_roots(a: list, b: list) -> list:
+    """ find a list of possible roots from two lists """
+    result = []
+    for i in a:
+        for j in b:
+            result.append(Fraction(i, j))
+            result.append(Fraction(j, i))
+    return list(set(result))
+
+
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
+"""
+def return_coefficients_after_divide(poly, root):
+    result = poly[0]
+    coe = list()
+    for i in range(1, len(poly)):
+        coe.append(result)
+        result = result * root + poly[i]
+    return coe
+
+
+def count_multiplicity(coefficients, root):
+    multiplicity = 0
+    while True:
+        if horner(coefficients, root) != 0 or len(coefficients) == 1:
+            return multiplicity
+        coefficients = return_coefficients_after_divide(coefficients, root)
+        multiplicity += 1
+"""
+# -------------------------------------------------------------------------
+# -------------------------------------------------------------------------
 
 
 class EquationSolver:
@@ -76,25 +121,33 @@ class EquationSolver:
                 raise TypeError("coefficients not set")
 
         # solve equation:
+        # get list of Fractions that are possible equation roots
+        solutions = possible_roots(find_factors(self.coefficients[0]), find_factors(self.coefficients[-1]))
+
+        multiplicities = []
 
         # return list of list of solutions and list of their multiplicities: [[solutions], [multiplicities]]
-        return []
+        return [solutions, multiplicities]
 
 
 if __name__ == "__main__":
     # init EquationSolver
     solver = EquationSolver(a=[2, -6, 4])
 
-    # print analysed equation
-    print(solver)
-
     # set new equation
-    solver.set_equation(a=[1, 0, -9, 3, -5])
+    solver.set_equation(a=[2, 4, -16])
 
     # print analysed equation
     print(solver)
+
+    # solve equation
+    print(solver.solve())
+
+    # verify example equation with example solution
+    print(verify_solution([2, 4, -16], 2))
 
     # divide by binomial
-    solver.divide_binomial(b=[1, 7], print_=True)
+    solver.divide_binomial(b=[1, -2], print_=True)
 
-    print(verify_solution([2, 4, -16], 2))
+    print(Fraction(1, 2), Fraction(2, 4), Fraction(1, 2) == Fraction(2, 4))
+    print(Fraction(98, 100), Fraction(98, 33), Fraction(98, 100) == Fraction(98, 33))
