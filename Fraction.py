@@ -56,7 +56,8 @@ class Fraction:
 
     def __sub__(self, other):
         """ called on 'self - other' operation, equal to - other + self """
-        return self.__add__(-other)
+        other.numerator *= -1
+        return self.__add__(other)
 
     def __rsub__(self, other):
         """ called on 'other - self' operation, equal to - self + other """
@@ -86,7 +87,7 @@ class Fraction:
         self.numerator, self.denominator = self.denominator, self.numerator
         return self.__mul__(other)
 
-    def __iadd__(self, other):
+    def __iadd__(self, other):  # TODO: REPAIR += iadd method
         """ called on 'self += other' operation """
         self.set_self(self.__add__(other))
 
@@ -102,10 +103,6 @@ class Fraction:
         """ called on 'self *= other' operation """
         self.set_self(self.__truediv__(other))
 
-    def __eq__(self, other) -> bool:
-        """ called on 'self is other' operation """
-        return self.numerator == other.numerator and self.denominator == other.denominator
-
     def __hash__(self):
         """ used to make class hashable and thus sorting and duplicate removal possible """
         return hash(str(self))
@@ -119,6 +116,18 @@ class Fraction:
             _ = Fraction(pow(self.numerator, other.numerator), pow(self.denominator, other.numerator))
             return simplify_fraction(
                 int(nth_root(_.numerator, other.denominator)), int(nth_root(_.denominator, other.denominator)))
+
+    def __eq__(self, other) -> bool:
+        """ called on 'self is other' operation """
+        return self.numerator == other.numerator and self.denominator == other.denominator
+
+    def __lt__(self, other):
+        """ called on 'self < other' operation, equal to check if subtraction is negative """
+        return self.__sub__(other).numerator < 0
+
+    def __gt__(self, other):
+        """ called on 'self > other' operation, equal to check if subtraction is positive """
+        return self.__sub__(other).numerator > 0
 
     def set_self(self, other):
         """ used to set self to other values """

@@ -21,12 +21,13 @@ def print_equation(list_: list) -> str:
     return equation[1:-4].lstrip()
 
 
-def verify_solution(a: list, x: int) -> bool:
+def verify_solution(a: list, x) -> bool:
     """ verifies if 'x' is a solution of equation 'a'"""
     result = 0
-    a.reverse()
-    for i in range(len(a)-1, -1, -1):
-        result += a[i] * pow(x, i)
+    temp = list(a)
+    temp.reverse()
+    for i in range(len(temp)-1, -1, -1):
+        result = result + temp[i] * pow(x, i)
     return result == 0
 
 
@@ -46,11 +47,15 @@ def possible_roots(a: list, b: list) -> list:
         for j in b:
             result.append(Fraction(i, j))
             result.append(Fraction(j, i))
-    return list(set(result))
+            result.append(Fraction(-i, j))
+            result.append(Fraction(-j, i))
+    # remove duplicates
+    result = list(set(result))
+    # remove non-integer solutions
+    result = [x for x in result if x.denominator == 1]
+    return result
 
 
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
 """
 def return_coefficients_after_divide(poly, root):
     result = poly[0]
@@ -69,8 +74,6 @@ def count_multiplicity(coefficients, root):
         coefficients = return_coefficients_after_divide(coefficients, root)
         multiplicity += 1
 """
-# -------------------------------------------------------------------------
-# -------------------------------------------------------------------------
 
 
 class EquationSolver:
@@ -124,10 +127,17 @@ class EquationSolver:
         # get list of Fractions that are possible equation roots
         solutions = possible_roots(find_factors(self.coefficients[0]), find_factors(self.coefficients[-1]))
 
+        # verify if solutions are true
+        verified_solutions = []
+        for solution in solutions:
+            if verify_solution(self.coefficients, solution):
+                verified_solutions.append(solution)
+
+        # get solutions degrees TODO: get solutions degrees
         multiplicities = []
 
         # return list of list of solutions and list of their multiplicities: [[solutions], [multiplicities]]
-        return [solutions, multiplicities]
+        return [verified_solutions, multiplicities]
 
 
 if __name__ == "__main__":
@@ -143,11 +153,11 @@ if __name__ == "__main__":
     # solve equation
     print(solver.solve())
 
-    # verify example equation with example solution
-    print(verify_solution([2, 4, -16], 2))
-
     # divide by binomial
     solver.divide_binomial(b=[1, -2], print_=True)
 
+    # compare example fractions
     print(Fraction(1, 2), Fraction(2, 4), Fraction(1, 2) == Fraction(2, 4))
     print(Fraction(98, 100), Fraction(98, 33), Fraction(98, 100) == Fraction(98, 33))
+    print(Fraction(98, 10), Fraction(98, 100), Fraction(98, 10) > Fraction(98, 100))
+    print(Fraction(98, 10), Fraction(98, 100), Fraction(98, 10) < Fraction(98, 100))
