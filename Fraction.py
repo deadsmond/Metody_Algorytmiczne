@@ -16,6 +16,10 @@ def simplify_fraction(numerator: int, denominator: int):
 class Fraction:
     def __init__(self, numerator: int, denominator: int):
         """ called on Fraction(numerator, denominator) """
+        # validate input
+        if denominator == 0:
+            raise ValueError("division by 0")
+
         # reduce fraction
         comm_div = gcd(numerator, denominator)
         numerator /= comm_div
@@ -87,21 +91,25 @@ class Fraction:
         self.numerator, self.denominator = self.denominator, self.numerator
         return self.__mul__(other)
 
-    def __iadd__(self, other):  # TODO: REPAIR += iadd method
+    def __iadd__(self, other):
         """ called on 'self += other' operation """
         self.set_self(self.__add__(other))
+        return self.__add__(other)
 
     def __imul__(self, other):
         """ called on 'self *= other' operation """
         self.set_self(self.__mul__(other))
+        return self.__mul__(other)
 
     def __isub__(self, other):
         """ called on 'self *= other' operation """
         self.set_self(self.__sub__(other))
+        return self.__sub__(other)
 
     def __itruediv__(self, other):
         """ called on 'self *= other' operation """
         self.set_self(self.__truediv__(other))
+        return self.__truediv__(other)
 
     def __hash__(self):
         """ used to make class hashable and thus sorting and duplicate removal possible """
@@ -128,6 +136,10 @@ class Fraction:
     def __gt__(self, other):
         """ called on 'self > other' operation, equal to check if subtraction is positive """
         return self.__sub__(other).numerator > 0
+
+    def __neg__(self):
+        """ called on '-self' operation """
+        return Fraction(-self.numerator, self.denominator)
 
     def set_self(self, other):
         """ used to set self to other values """

@@ -15,10 +15,30 @@ def validate_list(list_: list) -> bool:
 def print_equation(list_: list) -> str:
     """ pretty print equation from list of coefficients """
     equation = ""
-    for i in list_:
-        power = len(list_) - list_.index(i) - 1
-        equation += "%s %sx^%s " % (sign(i), i, power)
+    for i in range(len(list_)):
+        power = len(list_) - i - 1
+        equation += "%s %sx^%s " % (sign(i), list_[i], power)
     return equation[1:-4].lstrip()
+
+
+def divide_binomial(a: list, b: list, print_: bool = False) -> tuple:
+    """ divide polynomial by binomial with Horner schema """
+    # validate equations
+    validate_list(a)
+    validate_list(b)
+
+    # divide polynomial by binomial with Horner schema
+    result = [a[0]]
+    for i in range(1, len(a)):
+        result.append(result[i-1] * -1 * b[-1] + a[i])
+
+    # pretty print equation with results
+    if print_:
+        print("%s = (%s)(%s) + %s" % (
+            print_equation(a), print_equation(b), print_equation(result[:-1]), result[-1]))
+
+    # return polynomial and the rest from division
+    return result[:-1], result[-1]
 
 
 def verify_solution(a: list, x) -> bool:
@@ -51,29 +71,11 @@ def possible_roots(a: list, b: list) -> list:
             result.append(Fraction(-j, i))
     # remove duplicates
     result = list(set(result))
+    # sort results
+    # result.sort()
     # remove non-integer solutions
     result = [x for x in result if x.denominator == 1]
     return result
-
-
-"""
-def return_coefficients_after_divide(poly, root):
-    result = poly[0]
-    coe = list()
-    for i in range(1, len(poly)):
-        coe.append(result)
-        result = result * root + poly[i]
-    return coe
-
-
-def count_multiplicity(coefficients, root):
-    multiplicity = 0
-    while True:
-        if horner(coefficients, root) != 0 or len(coefficients) == 1:
-            return multiplicity
-        coefficients = return_coefficients_after_divide(coefficients, root)
-        multiplicity += 1
-"""
 
 
 class EquationSolver:
@@ -92,26 +94,6 @@ class EquationSolver:
             self.coefficients = a
         else:
             raise ValueError("wrong value fo coefficient")
-
-    def divide_binomial(self, b: list, a: list = None, print_: bool = False) -> tuple:
-        """ divide polynomial by binomial with Horner schema """
-        # validate equations
-        validate_list(b)
-        if a is not None:
-            self.set_equation(a)
-
-        # divide polynomial by binomial with Horner schema
-        result = [self.coefficients[0]]
-        for i in range(1, len(self.coefficients)):
-            result.append(result[i-1] * -1 * b[-1] + self.coefficients[i])
-
-        # pretty print equation with results
-        if print_:
-            print("%s = (%s)(%s) + %s" % (
-                print_equation(self.coefficients), print_equation(b), print_equation(result[:-1]), result[-1]))
-
-        # return polynomial and the rest from division
-        return result[:-1], result[-1]
 
     def solve(self, a: list = None) -> list:
         """ solve equation and return list of list of solutions and list of their multiplicities:
@@ -132,12 +114,27 @@ class EquationSolver:
         for solution in solutions:
             if verify_solution(self.coefficients, solution):
                 verified_solutions.append(solution)
+        solutions = list(verified_solutions)
+        del verified_solutions
 
-        # get solutions degrees TODO: get solutions degrees
+        # get solutions degrees
         multiplicities = []
 
+        # for all solutions of equation
+        for solution in solutions:
+            degree = 0
+            equation = list(self.coefficients)
+
+            # divide the equation by solution as long as the resting polynomial's solution is the tested solution
+            while True:
+                equation, rest = divide_binomial(a=equation, b=[1, -solution])
+                if rest != Fraction(0, 1):
+                    break
+                degree += 1
+            multiplicities.append(degree)
+
         # return list of list of solutions and list of their multiplicities: [[solutions], [multiplicities]]
-        return [verified_solutions, multiplicities]
+        return [solutions, multiplicities]
 
 
 if __name__ == "__main__":
@@ -146,15 +143,31 @@ if __name__ == "__main__":
 
     # set new equation
     solver.set_equation(a=[2, 4, -16])
-
     # print analysed equation
     print(solver)
-
     # solve equation
     print(solver.solve())
 
-    # divide by binomial
-    solver.divide_binomial(b=[1, -2], print_=True)
+    # set new equation
+    solver.set_equation(a=[1, 2, -13, 4, -30])
+    # print analysed equation
+    print(solver)
+    # solve equation
+    print(solver.solve())
+
+    # set new equation
+    solver.set_equation(a=[1, -6, 9])
+    # print analysed equation
+    print(solver)
+    # solve equation
+    print(solver.solve())
+
+    # set new equation - no integral solutions, solutions should be empty
+    solver.set_equation(a=[3, -1, 3, -1])
+    # print analysed equation
+    print(solver)
+    # solve equation
+    print(solver.solve())
 
     # compare example fractions
     print(Fraction(1, 2), Fraction(2, 4), Fraction(1, 2) == Fraction(2, 4))
