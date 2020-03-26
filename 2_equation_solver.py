@@ -90,10 +90,12 @@ class EquationSolver:
 
     def set_equation(self, a: list):
         """ set equation of solver object """
+        if a[-1] == 0:
+            raise ValueError("constant term can not be equal to 0")
         if validate_list(a):
             self.coefficients = a
         else:
-            raise ValueError("wrong value fo coefficient")
+            raise ValueError("wrong value for coefficient")
 
     def solve(self, a: list = None) -> list:
         """ solve equation and return list of list of solutions and list of their multiplicities:
@@ -101,9 +103,8 @@ class EquationSolver:
         # validate coefficients
         if a is not None:
             self.set_equation(a)
-        else:
-            if self.coefficients is None:
-                raise TypeError("coefficients not set")
+        elif self.coefficients is None:
+            raise TypeError("coefficients not set")
 
         # solve equation:
         # get list of Fractions that are possible equation roots
@@ -174,3 +175,9 @@ if __name__ == "__main__":
     print(Fraction(98, 100), Fraction(98, 33), Fraction(98, 100) == Fraction(98, 33))
     print(Fraction(98, 10), Fraction(98, 100), Fraction(98, 10) > Fraction(98, 100))
     print(Fraction(98, 10), Fraction(98, 100), Fraction(98, 10) < Fraction(98, 100))
+
+    # try polynomial with constant term equal to 0
+    try:
+        solver.set_equation(a=[3, -1, 3, -2, 0])
+    except ValueError as e:
+        print(e)
