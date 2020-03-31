@@ -1,24 +1,24 @@
 # equation solving class and its support functions
-from Fraction import Fraction
+from zad_2.Fraction import Fraction
 
 
 def sign(x: int) -> str:
-    """ return plus or minus sign character, basing on number sign """
+    """ return plus or minus sign character, basing on number sign, for equation printing """
     return '+' if (lambda a: (x > 0) - (x < 0)) else '-'
+
+
+def print_equation(a: list) -> str:
+    """ pretty print equation from list of coefficients """
+    equation = ""
+    for i in range(len(a)):
+        power = len(a) - i - 1
+        equation += "%s %sx^%s " % (sign(i), a[i], power)
+    return equation[1:-4].lstrip()
 
 
 def validate_list(list_: list) -> bool:
     """ validate if list contains only integers """
     return all(isinstance(x, int) for x in list_)
-
-
-def print_equation(list_: list) -> str:
-    """ pretty print equation from list of coefficients """
-    equation = ""
-    for i in range(len(list_)):
-        power = len(list_) - i - 1
-        equation += "%s %sx^%s " % (sign(i), list_[i], power)
-    return equation[1:-4].lstrip()
 
 
 def divide_binomial(a: list, b: list, print_: bool = False) -> tuple:
@@ -178,6 +178,7 @@ if __name__ == "__main__":
 
     # try polynomial with constant term equal to 0
     try:
+        print(print_equation(a=[3, -1, 3, -2, 0]))
         solver.set_equation(a=[3, -1, 3, -2, 0])
     except ValueError as e:
         print(e)
